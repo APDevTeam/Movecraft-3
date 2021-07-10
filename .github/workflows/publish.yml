@@ -105,8 +105,8 @@ jobs:
         if: steps.nether3.outputs.sucess != 'true'
         run: cd BuildTools && java -jar BuildTools.jar --rev 1.16.5 --compile craftbukkit
 
-  # Build 1.17 NMS
-  goats_1_17:
+  # Build 1.17.1 NMS
+  goats_1_17_1:
     runs-on: ubuntu-latest
     steps:
       - name: Set up JDK 16
@@ -114,43 +114,43 @@ jobs:
         with:
           distribution: 'adopt-hotspot'
           java-version: '16'
-      - name: Cache 1.17 Maven package
+      - name: Cache 1.17.1 Maven package
         id: cacheGoats
         uses: actions/cache@v2
         with:
-          path: |
-            ~/.m2/repository/org/spigotmc/spigot/1.17-R0.1-SNAPSHOT/
-            ~/.m2/repository/org/spigotmc/spigot-parent/
-            ~/.m2/repository/org/spigotmc/minecraft-server/
-          key: ${{ runner.os }}-spigot-1.17.0-all
-          restore-keys: ${{ runner.os }}-spigot-1.17.0-all
+            path: |
+              ~/.m2/repository/org/spigotmc/spigot/1.17.1-R0.1-SNAPSHOT/
+              ~/.m2/repository/org/spigotmc/spigot-parent/
+              ~/.m2/repository/org/spigotmc/minecraft-server/
+            key: ${{ runner.os }}-spigot-1.17.1-all
+            restore-keys: ${{ runner.os }}-spigot-1.17.1-all
       - name: Cache Maven packages
         id: cacheMain
         uses: actions/cache@v2
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2_1.17.0
-          restore-keys: ${{ runner.os }}-m2_1.17.0
+          key: ${{ runner.os }}-m2_1.17.1
+          restore-keys: ${{ runner.os }}-m2_1.17.1
 
       - name: Setup BuildTools
         run: mkdir BuildTools && wget -O BuildTools/BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
-      - name: Check 1.17 Spigot
+      - name: Check 1.17.1 Spigot
         id: goats
-        run: test -f ~/.m2/repository/org/spigotmc/spigot/1.17-R0.1-SNAPSHOT/spigot-1.17-R0.1-SNAPSHOT.jar && echo "::set-output name=sucess::true" || echo "::set-output name=sucess::false"
-      - name: Check 1.17 Spigot (Mojang)
+        run: test -f ~/.m2/repository/org/spigotmc/spigot/1.17.1-R0.1-SNAPSHOT/spigot-1.17.1-R0.1-SNAPSHOT.jar && echo "::set-output name=sucess::true" || echo "::set-output name=sucess::false"
+      - name: Check 1.17.1 Spigot (Mojang)
         id: goatsMojang
-        run: test -f ~/.m2/repository/org/spigotmc/spigot/1.17-R0.1-SNAPSHOT/spigot-1.17-R0.1-SNAPSHOT-remapped-mojang.jar && echo "::set-output name=sucess::true" || echo "::set-output name=sucess::false"
-      - name: Check 1.17 Spigot (Obf)
+        run: test -f ~/.m2/repository/org/spigotmc/spigot/1.17.1-R0.1-SNAPSHOT/spigot-1.17.1-R0.1-SNAPSHOT-remapped-mojang.jar && echo "::set-output name=sucess::true" || echo "::set-output name=sucess::false"
+      - name: Check 1.17.1 Spigot (Obf)
         id: goatsObf
-        run: test -f ~/.m2/repository/org/spigotmc/spigot/1.17-R0.1-SNAPSHOT/spigot-1.17-R0.1-SNAPSHOT-remapped-obf.jar && echo "::set-output name=sucess::true" || echo "::set-output name=sucess::false"
-      - name: Build 1.17
+        run: test -f ~/.m2/repository/org/spigotmc/spigot/1.17.1-R0.1-SNAPSHOT/spigot-1.17.1-R0.1-SNAPSHOT-remapped-obf.jar && echo "::set-output name=sucess::true" || echo "::set-output name=sucess::false"
+      - name: Build 1.17.1
         if: steps.goats.outputs.sucess != 'true' || steps.goatsMojang.outputs.sucess != 'true' || steps.goatsObf.outputs.sucess != 'true'
-        run: cd BuildTools && java -jar BuildTools.jar --rev 1.17 --remapped
+        run: cd BuildTools && java -jar BuildTools.jar --rev 1.17.1 --remapped
 
   # Build Movecraft
   publish:
     runs-on: ubuntu-latest
-    needs: [pillage_1_14_4, bees_1_15_2, nether_1_16_5, goats_1_17]
+    needs: [pillage_1_14_4, bees_1_15_2, nether_1_16_5, goats_1_17_1]
     permissions:
       contents: read
       packages: write
@@ -190,16 +190,16 @@ jobs:
           path: ~/.m2/repository/org/bukkit/craftbukkit/1.16.5-R0.1-SNAPSHOT/
           key: ${{ runner.os }}-1.16.5
           restore-keys: ${{ runner.os }}-1.16.5
-      - name: Cache 1.17 Maven package
+      - name: Cache 1.17.1 Maven package
         id: cacheGoats
         uses: actions/cache@v2
         with:
           path: |
-            ~/.m2/repository/org/spigotmc/spigot/1.17-R0.1-SNAPSHOT/
+            ~/.m2/repository/org/spigotmc/spigot/1.17.1-R0.1-SNAPSHOT/
             ~/.m2/repository/org/spigotmc/spigot-parent/
             ~/.m2/repository/org/spigotmc/minecraft-server/
-          key: ${{ runner.os }}-spigot-1.17.0-all
-          restore-keys: ${{ runner.os }}-spigot-1.17.0-all
+          key: ${{ runner.os }}-spigot-1.17.1-all
+          restore-keys: ${{ runner.os }}-spigot-1.17.1-all
 
       - name: Build with Maven
         run: mvn -T 1C -B package --file pom.xml
